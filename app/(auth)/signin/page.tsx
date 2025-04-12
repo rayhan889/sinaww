@@ -44,7 +44,7 @@ export default function Signin() {
             Google
           </Button>
           <p className='text-sm text-zinc-400'>
-            Didn't have an account?{' '}
+            Didn&apos;t have an account?{' '}
             <Link href='/signup' className='font-medium text-zinc-950'>
               Sign Up
             </Link>

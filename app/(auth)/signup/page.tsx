@@ -28,7 +28,7 @@ export default function Signup() {
         <div className='flex flex-col gap-2'>
           <h1 className='text-2xl'>Get Started</h1>
           <span className='text-zinc-400'>
-            Welcome to Sinaww! Let's create your account.
+            Welcome to Sinaww! Let&apos;s create your account.
           </span>
         </div>
         <hr className='w-full border-zinc-200' />
@@ -44,7 +44,7 @@ export default function Signup() {
             Google
           </Button>
           <p className='text-sm text-zinc-400'>
-            Alreadt have an account?{' '}
+            Already have an account?{' '}
             <Link href='/signin' className='font-medium text-zinc-950'>
               Sign In
             </Link>
