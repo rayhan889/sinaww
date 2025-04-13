@@ -3,51 +3,104 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { FcGoogle } from 'react-icons/fc'
+import { Github } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export default function Signin() {
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [email, setEmail] = useState<string>('')
+  const [isAuthGoogleLoading, setIsAuthGoogleLoading] = useState<boolean>(false)
+  const [isAuthGithubLoading, setIsAuthGithubLoading] = useState<boolean>(false)
 
   const loginWithGoogle = async () => {
-    setIsLoading(true)
+    setIsAuthGoogleLoading(true)
 
     try {
       await signIn('google', { callbackUrl: '/' })
     } catch (error) {
       console.log('Sign in error', error)
     } finally {
-      setIsLoading(false)
+      setIsAuthGoogleLoading(false)
     }
   }
 
+  const loginWithGithub = async () => {
+    setIsAuthGithubLoading(true)
+
+    try {
+      await signIn('github', { callbackUrl: '/' })
+    } catch (error) {
+      console.log('Sign in error', error)
+    } finally {
+      setIsAuthGithubLoading(false)
+    }
+  }
+
+  const loginWithEmail = async () => {
+    const signinResult = await signIn('email', {
+      email,
+      callbackUrl: '/',
+      redirect: false
+    })
+
+    if (signinResult?.error) {
+      console.log('Error signing in with email', signinResult.error)
+    } else {
+      console.log('Email sent successfully')
+    }
+
+    setEmail('')
+  }
+
   return (
-    <section className='mx-auto w-full lg:max-w-lg'>
+    <section className='mx-auto w-full lg:max-w-md'>
       <div className='flex flex-col space-y-4 p-2'>
         <div className='flex flex-col gap-2'>
-          <h1 className='text-2xl'>Sign In</h1>
-          <span className='text-zinc-400'>
-            Welcome back to Sinaww! Please sign in to your account.
+          <h1 className='text-2xl font-medium'>Sinaww</h1>
+          <span className='text-sm text-zinc-400'>
+            Easier way to manage your documents and notes.
           </span>
         </div>
-        <hr className='w-full border-zinc-200' />
+
         <div className='flex w-full flex-col items-center gap-4'>
           <Button
-            isLoading={isLoading}
+            isLoading={isAuthGoogleLoading}
             variant='outline'
             className='w-full'
             onClick={loginWithGoogle}
-            disabled={isLoading}
+            disabled={isAuthGoogleLoading}
           >
-            {isLoading ? null : <FcGoogle className='mr-1 h-4 w-4' />}
-            Google
+            {isAuthGoogleLoading ? null : <FcGoogle className='mr-1 h-4 w-4' />}
+            Continue with Google
           </Button>
-          <p className='text-sm text-zinc-400'>
-            Didn&apos;t have an account?{' '}
-            <Link href='/signup' className='font-medium text-zinc-950'>
-              Sign Up
-            </Link>
+          <Button
+            isLoading={isAuthGithubLoading}
+            variant='outline'
+            className='w-full'
+            onClick={loginWithGithub}
+            disabled={isAuthGithubLoading}
+          >
+            {isAuthGithubLoading ? null : <Github className='mr-1 h-4 w-4' />}
+            Continue with Github
+          </Button>
+          <hr className='w-full border-zinc-200' />
+          <form action={loginWithEmail} className='flex w-full flex-col gap-6'>
+            <div className='grid items-center gap-1.5'>
+              <Label htmlFor='email'>Email</Label>
+              <Input
+                type='email'
+                id='email'
+                placeholder='Email'
+                onChange={e => setEmail(e.target.value)}
+              />
+            </div>
+            <Button type='submit'>Continue</Button>
+          </form>
+          <p className='mt-4 max-w-sm text-center text-xs text-zinc-400'>
+            By continuing, you acknowledge that you understand and agree to the{' '}
+            <u>Terms & Conditions</u> and <u>Privacy Policy</u>
           </p>
         </div>
       </div>
