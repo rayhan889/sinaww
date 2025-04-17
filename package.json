@@ -9,6 +9,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx ./db/migrate.ts",
     "db:drop": "drizzle-kit drop",
+    "db:studio": "drizzle-kit studio",
     "lint": "next lint"
   },
   "dependencies": {

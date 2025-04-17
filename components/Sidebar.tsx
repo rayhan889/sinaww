@@ -16,8 +16,8 @@ const Sidebar = () => {
       icon: <NotebookText />
     },
     {
-      name: 'File',
-      href: '/dashboard/file',
+      name: 'Documents',
+      href: '/dashboard/documents',
       icon: <File />
     }
   ]
