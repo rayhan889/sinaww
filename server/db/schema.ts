@@ -4,11 +4,13 @@ import {
   pgTable,
   text,
   primaryKey,
-  integer
+  integer,
+  varchar
 } from 'drizzle-orm/pg-core'
 import postgres from 'postgres'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import type { AdapterAccount } from 'next-auth/adapters'
+import { relations } from 'drizzle-orm'
 
 const connectionString = 'postgres://postgres:postgres@localhost:5432/drizzle'
 const pool = postgres(connectionString, { max: 1 })
@@ -97,3 +99,27 @@ export const authenticators = pgTable(
     }
   ]
 )
+
+export const documents = pgTable('document', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description').notNull(),
+  userId: text('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date' }).defaultNow().notNull()
+})
+
+export const usersRelations = relations(users, ({ many }) => ({
+  documents: many(documents)
+}))
+
+export const documentsRelations = relations(documents, ({ one }) => ({
+  users: one(users, {
+    fields: [documents.id],
+    references: [users.id]
+  })
+}))

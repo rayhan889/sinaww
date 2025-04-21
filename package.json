@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx ./db/migrate.ts",
+    "db:migrate": "tsx ./server/db/migrate.ts",
     "db:drop": "drizzle-kit drop",
     "db:studio": "drizzle-kit studio",
     "lint": "next lint"
@@ -42,6 +42,7 @@
     "drizzle-kit": "^0.30.6",
     "eslint": "^9",
     "eslint-config-next": "15.1.4",
+    "pg": "^8.14.1",
     "postcss": "^8",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
