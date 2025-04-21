@@ -1,4 +1,4 @@
-import Topbar from '@/components/Topbar'
+import Topbar from '@/components/topbar'
 import React from 'react'
 
 export default function RootLayout({
