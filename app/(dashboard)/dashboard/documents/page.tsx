@@ -1,6 +1,6 @@
 import { Plus, Calendar, Filter } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import Link from 'next/link'
 
 export default function Documents() {
@@ -28,10 +28,13 @@ export default function Documents() {
             <Filter size={20} />
             Sort Document
           </Button>
-          <Button size='sm'>
+          <Link
+            href='/dashboard/create-document'
+            className={buttonVariants({ size: 'sm' })}
+          >
             <Plus size={20} />
             Add New Document
-          </Button>
+          </Link>
         </div>
       </div>
       <div className='grid w-full grid-cols-3 gap-3'>

@@ -1,7 +1,7 @@
 import Topbar from '@/components/topbar'
 import Sidebar from '@/components/sidebar'
 
-export default function RootLayout({
+export default function DashboardLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
   return (
