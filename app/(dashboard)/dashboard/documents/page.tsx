@@ -20,8 +20,8 @@ export default function Documents() {
   ]
 
   return (
-    <section className='flex h-full w-full flex-col items-start justify-start space-y-16 pt-24'>
-      <div className='flex w-full items-center justify-between'>
+    <section className='flex h-screen w-full flex-col items-start justify-start space-y-16 pt-24'>
+      <div className='flex w-full flex-col items-start justify-between gap-5 md:flex-row md:items-center md:gap-0'>
         <h2 className='text-2xl font-semibold'>📚 My Documents</h2>
         <div className='flex items-center gap-2'>
           <Button size='sm' variant='outline'>
@@ -37,7 +37,7 @@ export default function Documents() {
           </Link>
         </div>
       </div>
-      <div className='grid w-full grid-cols-3 gap-3'>
+      <div className='grid w-full grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3'>
         {[...documents, ...documents, ...documents].map((document, index) => {
           const slug = document.title.toLowerCase().replace(/\s+/g, '_')
           return (
@@ -52,7 +52,7 @@ export default function Documents() {
               </div>
               <div className='flex w-full flex-col gap-2'>
                 <h3 className='text-lg font-medium'>{document.title}</h3>
-                <p className='leading-relaxed text-zinc-500'>
+                <p className='text-sm leading-relaxed text-zinc-500 md:text-base'>
                   {document.description}
                 </p>
               </div>
