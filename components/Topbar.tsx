@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import SignOutButton from '@/components/sign-out-button'
+import SignOutButton from '@/components/SignOutButton'
 
 const Topbar = () => {
   const { data: session } = useSession()
