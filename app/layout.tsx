@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Rubik } from 'next/font/google'
 import './globals.css'
 
-import { Providers } from '@/components/providers'
+import { Providers } from '@/components/Providers'
 
 const rubik = Rubik({
   subsets: ['latin']

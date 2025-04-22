@@ -1,7 +1,7 @@
 import { getAuthSession } from '@/lib/auth'
 
-import DialogPortal from '@/components/dialog-portal'
-import CreateDocForm from '@/components/create-doc-form'
+import DialogPortal from '@/components/DialogPortal'
+import CreateDocForm from '@/components/CreateDocForm'
 
 export default async function CreateDocumentModal() {
   const session = await getAuthSession()
