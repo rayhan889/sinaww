@@ -113,6 +113,18 @@ export const documents = pgTable('document', {
   updatedAt: timestamp('updatedAt', { mode: 'date' }).defaultNow().notNull()
 })
 
+export const files = pgTable('file', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  fileName: varchar('file_name').notNull(),
+  fileType: varchar('file_type').notNull(),
+  path: varchar('path').notNull(),
+  documentId: text('document_id')
+    .notNull()
+    .references(() => documents.id, { onDelete: 'cascade' })
+})
+
 export const usersRelations = relations(users, ({ many }) => ({
   documents: many(documents)
 }))
@@ -121,5 +133,16 @@ export const documentsRelations = relations(documents, ({ one }) => ({
   users: one(users, {
     fields: [documents.id],
     references: [users.id]
+  }),
+  files: one(files, {
+    fields: [documents.id],
+    references: [files.id]
+  })
+}))
+
+export const filesRelations = relations(files, ({ one }) => ({
+  documents: one(documents, {
+    fields: [files.documentId],
+    references: [documents.id]
   })
 }))

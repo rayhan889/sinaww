@@ -1,31 +1,16 @@
-'use client'
-
-import { useRouter } from 'next/navigation'
-import { X } from 'lucide-react'
+import { getAuthSession } from '@/lib/auth'
 
 import DialogPortal from '@/components/dialog-portal'
-import { Button } from '@/components/ui/button'
 import CreateDocForm from '@/components/create-doc-form'
 
-export default function CreateDocumentModal() {
-  const router = useRouter()
+export default async function CreateDocumentModal() {
+  const session = await getAuthSession()
+
+  if (!session?.user) return null
 
   return (
-    <DialogPortal
-      title='Create Document'
-      onOpenChange={open => {
-        if (!open) router.back()
-      }}
-    >
-      <Button
-        onClick={() => router.back}
-        variant='ghost'
-        size='icon'
-        className='absolute right-3 top-3'
-      >
-        <X />
-      </Button>
-      <CreateDocForm />
+    <DialogPortal title='Create Document'>
+      <CreateDocForm user={session?.user} />
     </DialogPortal>
   )
 }
