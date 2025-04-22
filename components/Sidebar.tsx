@@ -22,7 +22,7 @@ const Sidebar = () => {
     }
   ]
   return (
-    <aside className='left-0 top-0 z-40 hidden h-screen w-60 border-r border-zinc-200 md:fixed md:block'>
+    <aside className='left-0 top-0 hidden h-screen w-60 border-r border-zinc-200 lg:fixed lg:block'>
       <div className='mt-0 flex h-full flex-col p-5 md:mt-16'>
         <ul className='w-full space-y-3'>
           {navLinks.map((link, index) => (

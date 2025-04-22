@@ -1,7 +1,7 @@
 import Topbar from '@/components/Topbar'
 import Sidebar from '@/components/Sidebar'
 
-export default function RootLayout({
+export default function DashboardLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -9,7 +9,7 @@ export default function RootLayout({
       <Topbar />
       <Sidebar />
 
-      <section className='container mx-auto flex h-screen max-w-6xl items-center justify-center'>
+      <section className='container mx-auto flex h-screen max-w-6xl items-center justify-center overflow-y-auto'>
         {children}
       </section>
     </>
