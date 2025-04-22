@@ -48,33 +48,36 @@ const CreateDocForm = ({ user }: { user: User }) => {
     defaultValues
   })
 
-  const onUploadFile = async (file: File): Promise<string> => {
-    if (file.size > MAX_FILE_SIZE) {
-      setFileError('File size is too large')
-      form.setError('file', {
-        message: `File size exceeds the limit of ${MAX_FILE_SIZE / 1024 / 1024} MB`
-      })
-      return ''
-    }
+  const onUploadFile = useCallback(
+    async (file: File): Promise<string> => {
+      if (file.size > MAX_FILE_SIZE) {
+        setFileError('File size is too large')
+        form.setError('file', {
+          message: `File size exceeds the limit of ${MAX_FILE_SIZE / 1024 / 1024} MB`
+        })
+        return ''
+      }
 
-    setFileUploading(true)
+      setFileUploading(true)
 
-    try {
-      const result = await uploadFiles('pdfUploader', {
-        files: [file]
-      })
-      setFileUploading(false)
-      return result.map(file => file.ufsUrl)[0]
-    } catch (error) {
-      console.log('file upload error:', error)
-      setFileUploading(false)
-      setFileError('File upload failed. Please try again.')
-      form.setError('file', {
-        message: 'File upload failed. Please try again.'
-      })
-      return ''
-    }
-  }
+      try {
+        const result = await uploadFiles('pdfUploader', {
+          files: [file]
+        })
+        setFileUploading(false)
+        return result.map(file => file.ufsUrl)[0]
+      } catch (error) {
+        console.log('file upload error:', error)
+        setFileUploading(false)
+        setFileError('File upload failed. Please try again.')
+        form.setError('file', {
+          message: 'File upload failed. Please try again.'
+        })
+        return ''
+      }
+    },
+    [form, setFileError, setFileUploading]
+  )
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -100,7 +103,7 @@ const CreateDocForm = ({ user }: { user: User }) => {
         }
       }
     },
-    [form]
+    [form, onUploadFile]
   )
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } =

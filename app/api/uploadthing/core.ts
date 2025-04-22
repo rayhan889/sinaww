@@ -11,7 +11,7 @@ export const singleMainFileRouter = {
       maxFileCount: 1
     }
   })
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       const session = await getAuthSession()
       const user = session?.user
 
