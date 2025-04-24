@@ -1,8 +1,5 @@
 import { withAuth } from '@/lib/api-handler'
-import {
-  formDocumentSchema,
-  type FormDocumentSchema
-} from '@/zod-schemas/document'
+import { type FormDocumentSchema } from '@/zod-schemas/document'
 import { QUERIES, MUTATIONS } from '@/server/queries/document'
 
 export const GET = withAuth(async (_, userId) => {
