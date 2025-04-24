@@ -6,13 +6,14 @@ import {
   formDocumentSchema,
   type FormDocumentSchema
 } from '@/zod-schemas/document'
-import type { User } from 'next-auth'
 import { useDropzone } from 'react-dropzone'
 import { useCallback, useState } from 'react'
 import { uploadFiles } from '@/lib/uploadthing'
 import { LoaderCircle, FileUp, FileText, Trash2, X } from 'lucide-react'
 import { truncateFileName } from '@/lib/helper/truncateText'
 import Link from 'next/link'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -25,17 +26,20 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from 'sonner'
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024
 
-const CreateDocForm = ({ user }: { user: User }) => {
+const CreateDocForm = () => {
   const [fileUploading, setFileUploading] = useState(false)
   const [fileError, setFileError] = useState<string | null>(null)
+
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
   const defaultValues: FormDocumentSchema = {
     description: '',
     title: '',
-    userId: user.id,
     file: {
       fileName: '',
       fileType: '',
@@ -47,6 +51,43 @@ const CreateDocForm = ({ user }: { user: User }) => {
     resolver: zodResolver(formDocumentSchema),
     defaultValues
   })
+
+  const { mutate: createDocument, isPending: isCreatingDocument } = useMutation(
+    {
+      mutationFn: async () => {
+        const payload: FormDocumentSchema = {
+          title: form.getValues('title'),
+          description: form.getValues('description'),
+          file: form.getValues('file')
+        }
+
+        const response = await fetch('/api/documents', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+
+        const data = await response.json()
+        return data as string
+      },
+      onError: (error: Error) => {
+        onClearForm()
+        router.back()
+
+        toast.error(`Error creating document: ${error.message}`)
+      },
+      onSuccess: () => {
+        onClearForm()
+        router.back()
+
+        queryClient.invalidateQueries({ queryKey: ['documents'] })
+
+        toast.success('Document successfully created!')
+      }
+    }
+  )
 
   const onUploadFile = useCallback(
     async (file: File): Promise<string> => {
@@ -95,7 +136,6 @@ const CreateDocForm = ({ user }: { user: User }) => {
             path: uploadededFileUrl
           }
 
-          console.log('file with ufsrl:', fileWithUfsUrl)
           form.setValue('file', fileWithUfsUrl, {
             shouldValidate: true,
             shouldDirty: true
@@ -151,6 +191,7 @@ const CreateDocForm = ({ user }: { user: User }) => {
 
   const onSubmit = (values: FormDocumentSchema) => {
     console.log(values)
+    createDocument()
   }
 
   const getFileErrorMessage = (): string | null | undefined => {
@@ -288,7 +329,8 @@ const CreateDocForm = ({ user }: { user: User }) => {
                 !form.getValues('file') ||
                 !form.getValues('title') ||
                 !form.getValues('description') ||
-                fileUploading
+                fileUploading ||
+                isCreatingDocument
               }
               onClick={onClearForm}
             >
@@ -302,7 +344,8 @@ const CreateDocForm = ({ user }: { user: User }) => {
                 !form.getValues('file') ||
                 !form.getValues('title') ||
                 !form.getValues('description') ||
-                fileUploading
+                fileUploading ||
+                isCreatingDocument
               }
             >
               Submit

@@ -12,7 +12,7 @@ export default async function CreateDocumentModal() {
 
   return (
     <DialogPortal title='Create Document'>
-      <CreateDocForm user={session?.user} />
+      <CreateDocForm />
     </DialogPortal>
   )
 }

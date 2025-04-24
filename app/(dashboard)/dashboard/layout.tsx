@@ -7,7 +7,7 @@ export default function DashboardLayout({
 }) {
   return (
     <>
-      <div>{children}</div>
+      <div className='w-full'>{children}</div>
       {modal}
     </>
   )
