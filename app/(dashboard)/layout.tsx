@@ -9,7 +9,7 @@ export default function DashboardLayout({
       <Topbar />
       <Sidebar />
 
-      <section className='container mx-auto flex h-screen w-full max-w-6xl items-center justify-center overflow-y-auto'>
+      <section className='custom-scrollbar container mx-auto flex h-screen w-full max-w-6xl items-center justify-center overflow-y-auto'>
         {children}
       </section>
     </>

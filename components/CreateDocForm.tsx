@@ -7,13 +7,16 @@ import {
   type FormDocumentSchema
 } from '@/zod-schemas/document'
 import { useDropzone } from 'react-dropzone'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { uploadFiles } from '@/lib/uploadthing'
 import { LoaderCircle, FileUp, FileText, Trash2, X } from 'lucide-react'
 import { truncateFileName } from '@/lib/helper/truncateText'
 import Link from 'next/link'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
+import pdfToText from 'react-pdftotext'
+import type { DescriptionResponsePayload } from '@/app/api/generate_desc/route'
+import { createId } from '@paralleldrive/cuid2'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -25,7 +28,6 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024
@@ -33,9 +35,14 @@ const MAX_FILE_SIZE = 4 * 1024 * 1024
 const CreateDocForm = () => {
   const [fileUploading, setFileUploading] = useState(false)
   const [fileError, setFileError] = useState<string | null>(null)
+  const [pdfText, setPdfText] = useState<string | null>(null)
+  const [generatingDesc, setGeneratingDesc] = useState(false)
+  const [pdfUploadId, setPdfUploadId] = useState<string | null>(null)
 
   const router = useRouter()
   const queryClient = useQueryClient()
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const defaultValues: FormDocumentSchema = {
     description: '',
@@ -82,6 +89,7 @@ const CreateDocForm = () => {
         onClearForm()
         router.back()
 
+        router.refresh()
         queryClient.invalidateQueries({ queryKey: ['documents'] })
 
         toast.success('Document successfully created!')
@@ -140,11 +148,80 @@ const CreateDocForm = () => {
             shouldValidate: true,
             shouldDirty: true
           })
+
+          pdfToText(singleFile)
+            .then(text => {
+              setPdfText(text)
+              setPdfUploadId(createId())
+            })
+            .catch((error: Error) => {
+              console.error(error.message)
+              toast.error(`Error converting pdf to text: ${error.message}`)
+            })
         }
       }
     },
     [form, onUploadFile]
   )
+
+  const { data: summaryDescription, error: errorSummaryDescription } = useQuery(
+    {
+      queryKey: ['generate_desc', pdfUploadId],
+      queryFn: async () => {
+        if (!pdfText) return null
+
+        setGeneratingDesc(true)
+
+        try {
+          const response = await fetch('/api/generate_desc', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ description: pdfText })
+          })
+
+          const data = await response.json()
+
+          return data as DescriptionResponsePayload
+        } finally {
+          setGeneratingDesc(false)
+        }
+      },
+      enabled: !!pdfText && !!pdfUploadId
+    }
+  )
+
+  useEffect(() => {
+    if (errorSummaryDescription) {
+      console.error(
+        'Error generating summary description:',
+        errorSummaryDescription.message
+      )
+      toast.error(
+        `Error generating summary description: ${errorSummaryDescription.message}`
+      )
+    }
+    if (summaryDescription) {
+      form.setValue('description', summaryDescription.summary_text, {
+        shouldValidate: true
+      })
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto'
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight + 25}px`
+      }
+    }
+    if (form.getValues('file.path') === '') {
+      form.setValue('description', defaultValues.description, {
+        shouldValidate: true
+      })
+    }
+  }, [
+    summaryDescription,
+    form,
+    errorSummaryDescription,
+    defaultValues.description
+  ])
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } =
     useDropzone({
@@ -180,6 +257,11 @@ const CreateDocForm = () => {
   const onRemoveFile = () => {
     setFileError(null)
     form.setValue('file', defaultValues.file, { shouldValidate: true })
+    form.setValue('description', defaultValues.description, {
+      shouldValidate: true
+    })
+    setPdfText(null)
+    setPdfUploadId(null)
     form.clearErrors('file')
   }
 
@@ -187,10 +269,11 @@ const CreateDocForm = () => {
     setFileError(null)
     form.reset(defaultValues)
     form.clearErrors()
+    setPdfText(null)
+    setPdfUploadId(null)
   }
 
-  const onSubmit = (values: FormDocumentSchema) => {
-    console.log(values)
+  const onSubmit = () => {
     createDocument()
   }
 
@@ -306,19 +389,34 @@ const CreateDocForm = () => {
           <FormField
             control={form.control}
             name='description'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    className='text-sm'
-                    placeholder='Document description is auto generated from the title'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              /* eslint-disable @typescript-eslint/no-unused-vars */
+              const { ref, ...restField } = field
+              return (
+                <FormItem>
+                  <FormLabel className='text-zinc-950'>Description</FormLabel>
+                  <FormControl>
+                    {generatingDesc ? (
+                      <div className='disabled flex min-h-24 w-full flex-col items-center justify-center gap-3 rounded-md border border-input bg-transparent px-3 py-2 text-sm text-muted-foreground shadow-sm'>
+                        <LoaderCircle className='mr-2 h-5 w-5 animate-spin' />
+                        <p>Generating description...</p>
+                      </div>
+                    ) : (
+                      <textarea
+                        disabled
+                        ref={el => {
+                          field.ref(el)
+                          textareaRef.current = el
+                        }}
+                        className='min-h-24 w-full resize-none overflow-hidden rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm'
+                        placeholder='Description is auto generated from the document'
+                        {...restField}
+                      />
+                    )}
+                  </FormControl>
+                </FormItem>
+              )
+            }}
           />
           <div className='mt-4 flex w-full items-center justify-end gap-2'>
             <Button
