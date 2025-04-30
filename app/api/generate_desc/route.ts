@@ -11,6 +11,7 @@ export type DescriptionResponsePayload = {
   summary_text: string
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export const POST = withAuth(async (req, _) => {
   try {
     const body = await req.json()

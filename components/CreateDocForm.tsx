@@ -216,7 +216,12 @@ const CreateDocForm = () => {
         shouldValidate: true
       })
     }
-  }, [summaryDescription, form, errorSummaryDescription])
+  }, [
+    summaryDescription,
+    form,
+    errorSummaryDescription,
+    defaultValues.description
+  ])
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } =
     useDropzone({
@@ -385,6 +390,7 @@ const CreateDocForm = () => {
             control={form.control}
             name='description'
             render={({ field }) => {
+              /* eslint-disable @typescript-eslint/no-unused-vars */
               const { ref, ...restField } = field
               return (
                 <FormItem>
