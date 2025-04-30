@@ -6,7 +6,7 @@ import DocumentList from './_components/DocumentList'
 
 export default function Documents() {
   return (
-    <section className='flex h-screen w-full flex-col items-start justify-start space-y-16 pt-24'>
+    <section className='flex h-screen w-full flex-col items-start justify-start space-y-14 py-24'>
       <div className='flex w-full flex-col items-start justify-between gap-5 md:flex-row md:items-center md:gap-0'>
         <h2 className='text-2xl font-semibold'>📚 My Documents</h2>
         <div className='flex items-center gap-2'>
