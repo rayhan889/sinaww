@@ -21,7 +21,7 @@ const Topbar = () => {
   const { data: session } = useSession()
 
   return (
-    <nav className='fixed left-0 right-0 top-0 z-50 flex h-16 items-center justify-between border-b border-zinc-200 bg-white'>
+    <nav className='fixed left-0 right-0 top-0 z-50 flex h-16 items-center justify-between border-b border-gray-200 bg-white'>
       <div className='mx-5 flex w-full items-center justify-between'>
         <Link href='/' className={`${buttonVariants({ variant: 'link' })}`}>
           <Image src='/logo.png' alt='Logo' width={24} height={24} />

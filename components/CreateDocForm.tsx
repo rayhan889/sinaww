@@ -13,7 +13,7 @@ import { LoaderCircle, FileUp, FileText, Trash2, X } from 'lucide-react'
 import { truncateFileName } from '@/lib/helper/truncateText'
 import Link from 'next/link'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import pdfToText from 'react-pdftotext'
 import type { DescriptionResponsePayload } from '@/app/api/generate_desc/route'
 import { createId } from '@paralleldrive/cuid2'
@@ -33,6 +33,10 @@ import { toast } from 'sonner'
 const MAX_FILE_SIZE = 4 * 1024 * 1024
 
 const CreateDocForm = () => {
+  const searchParams = useSearchParams()
+
+  const currentPage: number = Number(searchParams.get('page')) || 1
+
   const [fileUploading, setFileUploading] = useState(false)
   const [fileError, setFileError] = useState<string | null>(null)
   const [pdfText, setPdfText] = useState<string | null>(null)
@@ -89,8 +93,7 @@ const CreateDocForm = () => {
         onClearForm()
         router.back()
 
-        router.refresh()
-        queryClient.invalidateQueries({ queryKey: ['documents'] })
+        queryClient.invalidateQueries({ queryKey: ['documents', currentPage] })
 
         toast.success('Document successfully created!')
       }

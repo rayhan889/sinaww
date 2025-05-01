@@ -2,8 +2,10 @@ import { withAuth } from '@/lib/api-handler'
 import { type FormDocumentSchema } from '@/zod-schemas/document'
 import { QUERIES, MUTATIONS } from '@/server/queries/document'
 
-export const GET = withAuth(async (_, userId) => {
-  const result = await QUERIES.getDocumentsByUserId(userId!)
+export const GET = withAuth(async (req, userId) => {
+  const { searchParams } = new URL(req.url)
+  const page = parseInt(searchParams.get('page') || '1', 10)
+  const result = await QUERIES.getDocumentsByUserId(userId!, page)
 
   return new Response(JSON.stringify(result), {
     status: 200,
