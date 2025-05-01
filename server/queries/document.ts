@@ -11,8 +11,19 @@ import {
   type FormDocumentSchema
 } from '@/zod-schemas/document'
 
+export type DocumentQuery = {
+  data: DocumentSchema[]
+  meta: { limit: number; page: number; total: number }
+}
+
 export const QUERIES = {
-  getDocumentsByUserId: async (userId: string): Promise<DocumentSchema[]> => {
+  getDocumentsByUserId: async (
+    userId: string,
+    page: number
+  ): Promise<DocumentQuery> => {
+    const LIMIT = 6
+    const offset = (page - 1) * LIMIT
+
     const documents = await db
       .select({
         id: documentsTable.id,
@@ -31,12 +42,32 @@ export const QUERIES = {
       .where(eq(documentsTable.userId, userId))
       .innerJoin(filesTable, eq(documentsTable.id, filesTable.documentId))
       .orderBy(desc(documentsTable.createdAt))
+      .limit(LIMIT)
+      .offset(offset)
 
-    const result = documents.map(document => ({
+    const documentsLength = (
+      await db
+        .select()
+        .from(documentsTable)
+        .where(eq(documentsTable.userId, userId))
+    ).length
+
+    const data = documents.map(document => ({
       ...document,
       createdAt: document.createdAt.toISOString(),
       updatedAt: document.updatedAt.toISOString()
     }))
+
+    const meta = {
+      limit: LIMIT,
+      page,
+      total: documentsLength
+    }
+
+    const result = {
+      data,
+      meta
+    }
 
     return result
   }
